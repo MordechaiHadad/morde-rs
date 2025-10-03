@@ -60,32 +60,23 @@ pub struct SurrealJWTClaims<T> {
     pub id: String,
 }
 
-/// Simple parser for SurrealDB record ids of the form `<table>:<id>`.
+/// Serde serializer helper that serializes a `surrealdb::RecordId` as its key string.
 ///
-/// Returns `Some(RecordId)` for well-formed inputs like `user:alice`, and
-/// `None` for empty, missing-colon, or multi-colon inputs.
+/// This function is intended to be used with `#[serde(serialize_with = "...")]`
+/// to serialize a `RecordId` into a JSON (or other format) string containing the
+/// record's key (the part after the `:` in `<table>:<id>`).
 ///
 /// # Example
 ///
-/// ```rust
-/// assert!(morde_rs::surrealdb::string_to_record_id("user:alice").is_some());
-/// assert!(morde_rs::surrealdb::string_to_record_id("").is_none());
+/// ```rust,no_run
+/// #[derive(serde::Serialize)]
+/// struct Wrapper<'a> {
+///     #[serde(serialize_with = "morde_rs::surrealdb::serialize_record_id")]
+///     id: &'a surrealdb::RecordId,
+/// }
+///
+/// // When serialized, `id` will be represented by its key string, e.g. "alice".
 /// ```
-pub fn string_to_record_id(s: &str) -> Option<RecordId> {
-    if s.is_empty() {
-        return None;
-    }
-    if !s.contains(':') {
-        return None;
-    }
-
-    let parts = s.split(':').collect::<Vec<&str>>();
-    if parts.len() != 2 {
-        return None;
-    }
-    Some(RecordId::from((parts[0], parts[1])))
-}
-
 pub fn serialize_record_id<S>(id: &RecordId, serializer: S) -> Result<S::Ok, S::Error>
 where
     S: serde::Serializer,
