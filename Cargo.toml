@@ -1,0 +1,21 @@
+[package]
+name = "morde-rs"
+version = "0.1.0"
+edition = "2024"
+description = "A bunch of common utilities I use across my projects."
+
+[dependencies]
+axum = { version = "0.8.6", optional = true }
+surrealdb = { version = "2.3.10", optional = true }
+http = "0.2"
+serde = { version = "1.0.228", features = ["derive"] }
+eyre = { version = "0.6.12", optional = true }
+base64 = { version = "0.21", optional = true }
+serde_json = { version = "1.0", optional = true }
+tracing = "0.1"
+
+[features]
+default = []
+axum = ["dep:axum"]
+surrealdb = ["dep:surrealdb", "dep:base64", "dep:serde_json"]
+eyre = ["dep:eyre"]
