@@ -125,8 +125,7 @@ impl From<eyre::Report> for AppError {
 }
 #[macro_export]
 macro_rules! app_error {
-    // custom numeric application status: app_error!(custom(42u16), code, public, internal)
-    (custom($n:expr), $error:expr, $msg:expr, $internal_msg:expr) => {{
+    (custom($n:expr), $error:expr, $msg:expr $(, $internal_msg:expr)?) => {{
         tracing::warn!("App Status {}: {} - {}: {}", $n, $error, $msg, $internal_msg);
         $crate::types::errors::AppError::new(
             $crate::types::errors::StatusKind::App($n),
@@ -134,26 +133,9 @@ macro_rules! app_error {
             $msg,
         )
     }};
-    (custom($n:expr), $error:expr, $msg:expr) => {{
-        tracing::warn!("App Status {}: {} - {}", $n, $error, $msg);
-        $crate::types::errors::AppError::new(
-            $crate::types::errors::StatusKind::App($n),
-            $error,
-            $msg,
-        )
-    }};
 
-    // explicit HTTP status expression: app_error!(http(StatusCode::IM_A_TEAPOT), ...)
-    (http($status:expr), $error:expr, $msg:expr, $internal_msg:expr) => {{
+    (http($status:expr), $error:expr, $msg:expr $(, $internal_msg:expr)?) => {{
         tracing::warn!("HTTP {}: {} - {}: {}", $status, $error, $msg, $internal_msg);
-        $crate::types::errors::AppError::new(
-            $crate::types::errors::StatusKind::Http($status),
-            $error,
-            $msg,
-        )
-    }};
-    (http($status:expr), $error:expr, $msg:expr) => {{
-        tracing::warn!("HTTP {}: {} - {}", $status, $error, $msg);
         $crate::types::errors::AppError::new(
             $crate::types::errors::StatusKind::Http($status),
             $error,
@@ -162,48 +144,32 @@ macro_rules! app_error {
     }};
 
     // Matches AppError::bad_request
-    (bad_request, $error:expr, $msg:expr, $internal_msg:expr) => {{
+    (bad_request, $error:expr, $msg:expr $(, $internal_msg:expr)?) => {{
         tracing::warn!("Bad Request: {} - {}: {}", $error, $msg, $internal_msg);
-        $crate::types::errors::AppError::bad_request($error, $msg)
-    }};
-    (bad_request, $error:expr, $msg:expr) => {{
-        tracing::warn!("Bad Request: {} - {}", $error, $msg);
         $crate::types::errors::AppError::bad_request($error, $msg)
     }};
 
     // Matches AppError::not_found
-    (not_found, $error:expr, $msg:expr, $internal_msg:expr) => {{
+    (not_found, $error:expr, $msg:expr $(, $internal_msg:expr)?) => {{
         tracing::warn!("Not Found: {} - {}: {}", $error, $msg, $internal_msg);
-        $crate::types::errors::AppError::not_found($error, $msg)
-    }};
-    (not_found, $error:expr, $msg:expr) => {{
-        tracing::warn!("Not Found: {} - {}", $error, $msg);
         $crate::types::errors::AppError::not_found($error, $msg)
     }};
 
     // Matches AppError::unauthorized
-    (unauthorized, $msg:expr, $internal_msg:expr) => {{
+    (unauthorized, $msg:expr $(, $internal_msg:expr)?) => {{
         tracing::warn!("Unauthorized: {}: {}", $msg, $internal_msg);
-        $crate::types::errors::AppError::unauthorized($msg)
-    }};
-    (unauthorized, $msg:expr) => {{
-        tracing::warn!("Unauthorized: {}", $msg);
         $crate::types::errors::AppError::unauthorized($msg)
     }};
 
     // Matches AppError::conflict
-    (conflict, $error:expr, $msg:expr) => {{
-        tracing::warn!("Conflict: {} - {}", $error, $msg);
+    (conflict, $error:expr, $msg:expr $(, $internal_msg:expr)?) => {{
+        tracing::warn!("Conflict: {} - {}: {}", $error, $msg, $internal_msg);
         $crate::types::errors::AppError::conflict($error, $msg)
     }};
 
     // Matches AppError::internal_server_error
-    (internal_server_error, $msg:expr, $internal_msg:expr) => {{
+    (internal_server_error, $msg:expr $(, $internal_msg:expr)?) => {{
         tracing::error!("Internal Server Error: {}: {}", $msg, $internal_msg);
-        $crate::types::errors::AppError::internal_server_error($msg)
-    }};
-    (internal_server_error, $msg:expr) => {{
-        tracing::error!("Internal Server Error: {}", $msg);
         $crate::types::errors::AppError::internal_server_error($msg)
     }};
 }
