@@ -1,8 +1,5 @@
 pub mod errors;
 
-#[cfg(feature = "surrealdb")]
-pub mod surrealdb;
-
 /// Check a payload for missing or empty string fields.
 ///
 /// Returns a `Vec<&'static str>` with the names of fields that are missing or
